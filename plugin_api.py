@@ -30,6 +30,10 @@ class Event(BaseModel):
     start: str
     summary: str
 
+@app.get("/")
+def read_root():
+    return {"message": "Hello from FastAPI on Render!"}
+
 @app.get("/events", response_model=List[Event])
 def get_events(max_results: int = 10):
     """Get upcoming Google Calendar events."""
