@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Google Calendar & Gmail Plugin",
+  "name_for_model": "google_calendar_gmail",
+  "description_for_human": "Access your Google Calendar events and send emails via Gmail.",
+  "description_for_model": "Plugin for accessing Google Calendar events and sending emails via Gmail using the user's OAuth credentials.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:8000/openapi.json",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://www.gstatic.com/images/branding/product/1x/calendar_48dp.png",
+  "contact_email": "your-email@example.com",
+  "legal_info_url": "https://policies.google.com/privacy"
+} 
