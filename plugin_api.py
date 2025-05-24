@@ -7,7 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title="Google Calendar & Gmail Plugin",
     description="A plugin to access Google Calendar events and send emails via Gmail.",
-    version="1.0.0"
+    version="1.0.0",
+    servers=[
+        {"url": "https://g-assist.onrender.com", "description": "Production server"}
+    ]
 )
 
 app.add_middleware(
