@@ -9,7 +9,7 @@ app = FastAPI(
     description="A plugin to access Google Calendar events and send emails via Gmail.",
     version="1.0.0",
     servers=[
-        {"url": "https://g-assist.onrender.com", "description": "Production server"}
+        {"url": "https://g-assist-byy8.onrender.com", "description": "Production server"}
     ]
 )
 
