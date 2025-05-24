@@ -20,6 +20,11 @@ def get_credentials():
     the OAuth2 flow is completed to obtain the new credentials.
     """
     creds = None
+    # Write credentials.json from environment variable if present
+    credentials_env = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+    if credentials_env:
+        with open("credentials.json", "w") as f:
+            f.write(credentials_env)
     # The file token.pickle stores the user's access and refresh tokens
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
