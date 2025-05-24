@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from google_calendar_gmail import list_calendar_events, send_email
+from google_calendar_gmail import list_calendar_events, send_email, get_calendar_service
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -91,11 +91,14 @@ class EventEditRequest(BaseModel):
 @app.post("/edit_event")
 def edit_event(req: EventEditRequest):
     service = get_calendar_service()
-    event = service.events().get(calendarId='primary', eventId=req.event_id).execute()
-    if req.summary: event["summary"] = req.summary
-    if req.start: event["start"]["dateTime"] = req.start
-    if req.end: event["end"]["dateTime"] = req.end
-    if req.description: event["description"] = req.description
-    if req.location: event["location"] = req.location
-    updated_event = service.events().update(calendarId='primary', eventId=req.event_id, body=event).execute()
-    return {"id": updated_event["id"], "htmlLink": updated_event.get("htmlLink")} 
+    try:
+        event = service.events().get(calendarId='primary', eventId=req.event_id).execute()
+        if req.summary: event["summary"] = req.summary
+        if req.start: event["start"]["dateTime"] = req.start
+        if req.end: event["end"]["dateTime"] = req.end
+        if req.description: event["description"] = req.description
+        if req.location: event["location"] = req.location
+        updated_event = service.events().update(calendarId='primary', eventId=req.event_id, body=event).execute()
+        return {"id": updated_event["id"], "htmlLink": updated_event.get("htmlLink")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
