@@ -20,6 +20,14 @@ def get_credentials():
     the OAuth2 flow is completed to obtain the new credentials.
     """
     creds = None
+    # Always overwrite token.pickle from environment variable if present
+    token_b64 = os.environ.get("GOOGLE_TOKEN_PICKLE_B64")
+    if token_b64:
+        with open("token.pickle", "wb") as f:
+            f.write(base64.b64decode(token_b64))
+        print("token.pickle written from environment variable (forced overwrite)")
+    else:
+        print("GOOGLE_TOKEN_PICKLE_B64 not set")
     # Write credentials.json from environment variable if present
     credentials_env = os.environ.get("GOOGLE_CREDENTIALS_JSON")
     if credentials_env:
