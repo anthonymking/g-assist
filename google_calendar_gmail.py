@@ -10,7 +10,8 @@ import base64
 SCOPES = [
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/gmail.send',
-    'https://www.googleapis.com/auth/gmail.compose'
+    'https://www.googleapis.com/auth/gmail.compose',
+    'https://www.googleapis.com/auth/contacts.readonly'
 ]
 
 def get_credentials():
@@ -106,6 +107,15 @@ def send_email(to, subject, message_text):
     except Exception as e:
         print(f'An error occurred: {e}')
         return None
+
+def search_contacts(query, max_results=10):
+    service = build('people', 'v1', credentials=get_credentials())
+    results = service.people().searchContacts(
+        query=query,
+        pageSize=max_results,
+        readMask='names,emailAddresses,phoneNumbers'
+    ).execute()
+    return results.get('results', [])
 
 if __name__ == '__main__':
     # Test the connection

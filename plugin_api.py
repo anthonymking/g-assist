@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from google_calendar_gmail import list_calendar_events, send_email, get_calendar_service
+from google_calendar_gmail import list_calendar_events, send_email, get_calendar_service, search_contacts
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -36,6 +36,10 @@ class EventCreateRequest(BaseModel):
     end: str    # ISO format datetime string
     description: str = ""
     location: str = ""
+
+class ContactSearchRequest(BaseModel):
+    query: str
+    max_results: int = 10
 
 @app.get("/")
 def read_root():
@@ -100,5 +104,13 @@ def edit_event(req: EventEditRequest):
         if req.location: event["location"] = req.location
         updated_event = service.events().update(calendarId='primary', eventId=req.event_id, body=event).execute()
         return {"id": updated_event["id"], "htmlLink": updated_event.get("htmlLink")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/search_contacts")
+def search_contacts_endpoint(req: ContactSearchRequest):
+    try:
+        results = search_contacts(req.query, req.max_results)
+        return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 
