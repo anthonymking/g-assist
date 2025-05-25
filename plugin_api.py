@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from google_calendar_gmail import list_calendar_events, send_email, get_calendar_service, search_contacts
+from google_calendar_gmail import list_calendar_events, send_email, get_calendar_service, search_contacts, list_gmail_labels, list_messages_by_label, get_message_details, reply_to_message, delete_message
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -112,5 +112,47 @@ def search_contacts_endpoint(req: ContactSearchRequest):
     try:
         results = search_contacts(req.query, req.max_results)
         return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/labels")
+def get_labels():
+    try:
+        return list_gmail_labels()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/messages")
+def get_messages(label_id: str = 'INBOX', max_results: int = 10):
+    try:
+        return list_messages_by_label(label_id, max_results)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/message/{message_id}")
+def get_message(message_id: str):
+    try:
+        return get_message_details(message_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class ReplyRequest(BaseModel):
+    message_id: str
+    reply_text: str
+
+@app.post("/reply")
+def reply_to_message_endpoint(req: ReplyRequest):
+    try:
+        return reply_to_message(req.message_id, req.reply_text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class DeleteRequest(BaseModel):
+    message_id: str
+
+@app.post("/delete_message")
+def delete_message_endpoint(req: DeleteRequest):
+    try:
+        return delete_message(req.message_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 

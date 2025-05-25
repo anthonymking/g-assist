@@ -117,6 +117,44 @@ def search_contacts(query, max_results=10):
     ).execute()
     return results.get('results', [])
 
+def list_gmail_labels():
+    service = get_gmail_service()
+    results = service.users().labels().list(userId='me').execute()
+    return results.get('labels', [])
+
+def list_messages_by_label(label_id='INBOX', max_results=10):
+    service = get_gmail_service()
+    results = service.users().messages().list(userId='me', labelIds=[label_id], maxResults=max_results).execute()
+    messages = results.get('messages', [])
+    return messages
+
+def get_message_details(message_id):
+    service = get_gmail_service()
+    msg_detail = service.users().messages().get(userId='me', id=message_id, format='full').execute()
+    return msg_detail
+
+def reply_to_message(message_id, reply_text):
+    import base64, email
+    service = get_gmail_service()
+    original = service.users().messages().get(userId='me', id=message_id, format='full').execute()
+    headers = original['payload']['headers']
+    subject = next((h['value'] for h in headers if h['name'].lower() == 'subject'), '')
+    to = next((h['value'] for h in headers if h['name'].lower() == 'from'), '')
+    message = email.message.EmailMessage()
+    message['To'] = to
+    message['Subject'] = 'Re: ' + subject
+    message['In-Reply-To'] = message_id
+    message.set_content(reply_text)
+    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+    body = {'raw': raw, 'threadId': original.get('threadId')}
+    sent = service.users().messages().send(userId='me', body=body).execute()
+    return sent
+
+def delete_message(message_id):
+    service = get_gmail_service()
+    service.users().messages().delete(userId='me', id=message_id).execute()
+    return {'status': 'deleted', 'id': message_id}
+
 if __name__ == '__main__':
     # Test the connection
     print("Testing Google Calendar connection...")
